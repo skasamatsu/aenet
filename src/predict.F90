@@ -330,6 +330,8 @@ contains
     integer :: stat
     integer :: itype
 
+    character(len=1024) :: workdir
+
     call pp_init()
 
     if (ppMaster) then
@@ -357,12 +359,21 @@ contains
           strucFile = ''
        end if
 
+       ! read working directory, if present
+       if (nargs > 2) then
+          call get_command_argument(3, value=workdir)
+       else
+          workdir = ''
+       end if
+
        ! read general input file
        inp = read_InpPredict(inFile)
     end if
     call pp_bcast(inFile)
     call pp_bcast(strucFile)
     call pp_bcast_InputData(inp)
+    call pp_bcast(workdir)
+    if (len_trim(workdir) > 0) call chdir(trim(workdir))
 
     if (inp%verbosity > 0) call pp_print_info()
 
