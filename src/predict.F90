@@ -79,7 +79,6 @@ program predict
                        pp_bcast_latt,                  &
                        pp_sum,                         &
                        ppMaster, ppRank, ppSize
-
   implicit none
 
   !--------------------------------------------------------------------!
@@ -317,7 +316,7 @@ program predict
 contains
 
   subroutine initialize(inFile, strucFile, inp)
-
+    use, intrinsic :: iso_fortran_env, only: output_unit, error_unit
     implicit none
 
     character(len=*), intent(out) :: inFile
@@ -373,7 +372,15 @@ contains
     call pp_bcast(strucFile)
     call pp_bcast_InputData(inp)
     call pp_bcast(workdir)
-    if (len_trim(workdir) > 0) call chdir(trim(workdir))
+    if (len_trim(workdir) > 0) then
+       call chdir(trim(workdir))
+       !write(*,*) trim(workdir)
+       if (ppMaster) then
+          OPEN(UNIT=output_unit,FILE='stdout',STATUS='UNKNOWN')
+          OPEN(UNIT=error_unit,FILE='stderr',STATUS='UNKNOWN')
+          !write(*,*) trim(workdir)
+       end if
+    end if
 
     if (inp%verbosity > 0) call pp_print_info()
 

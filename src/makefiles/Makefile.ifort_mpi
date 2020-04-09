@@ -31,8 +31,8 @@ OMPI_FC := ifort
 FC       = mpif90 -c
 LD       = mpif90
 DEBUG    = # -g -warn all -check bounds
-FCFLAGS  = -DPARALLEL -O2 $(DEBUG)
-LDFLAGS  = -static-intel $(DEBUG)
+FCFLAGS  = -DPARALLEL -O2 $(DEBUG) -assume noold_unit_star 
+LDFLAGS  = -static-intel $(DEBUG) -assume noold_unit_star 
 NUMLIB   = -Wl,--start-group \
            $(MKLROOT)/lib/intel64/libmkl_intel_lp64.a \
            $(MKLROOT)/lib/intel64/libmkl_core.a \

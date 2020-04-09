@@ -211,11 +211,6 @@ contains !=============================================================!
 
 #ifdef PARALLEL
     call MPI_Init(ierr)
-    CALL MPI_COMM_GET_PARENT(mpi_comm_parent,ierr)
-    if (mpi_comm_parent .NE. MPI_COMM_NULL) THEN
-      OPEN(UNIT=6,FILE='stdout',STATUS='UNKNOWN')
-      OPEN(UNIT=0,FILE='stderr',STATUS='UNKNOWN')
-    end if
     call MPI_Comm_size(MPI_COMM_WORLD, ppSize, ierr)
     call MPI_Comm_rank(MPI_COMM_WORLD, ppRank, ierr)
 
@@ -241,19 +236,20 @@ contains !=============================================================!
     if (.not. isInit) return
 
 #ifdef PARALLEL
-    call MPI_Finalize(ierr)
-
     CALL MPI_COMM_GET_PARENT(mpi_comm_parent,ierr)
     IF (mpi_comm_parent .NE. MPI_COMM_NULL) THEN
-      IF (ppRank==0) THEN
-        CALL MPI_BCAST(0, 1, MPI_INTEGER, MPI_ROOT, &
-            mpi_comm_parent, ierr)
-    ELSE
-        CALL MPI_BCAST(0, 1, MPI_INTEGER, MPI_PROC_NULL, &
-            mpi_comm_parent, ierr)
+       IF (ppRank==0) THEN
+          CALL MPI_BCAST(0, 1, MPI_INTEGER, MPI_ROOT, &
+               mpi_comm_parent, ierr)
+       ELSE 
+          CALL MPI_BCAST(0, 1, MPI_INTEGER, MPI_PROC_NULL, &
+               mpi_comm_parent, ierr)
+       ENDIF
+       CALL MPI_COMM_DISCONNECT(mpi_comm_parent,ierr)
     ENDIF
-    CALL MPI_COMM_DISCONNECT(mpi_comm_parent,ierr)
-ENDIF
+
+    call MPI_Finalize(ierr)
+
 #endif
 
     isInit     = .false.
